@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import {
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 import CommentForm from '../components/comment/CommentForm.jsx'
 import CommentSection from '../components/comment/CommentSection.jsx'
 import ConfirmModal from '../components/common/ConfirmModal.jsx'
@@ -22,8 +26,9 @@ import { sortByNewest } from '../utils/format.js'
 
 function PostDetailPage() {
   const { postId } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const [post, setPost] = useState(null)
   const [comments, setComments] = useState([])
   const [commentContent, setCommentContent] = useState('')
@@ -54,7 +59,28 @@ function PostDetailPage() {
     loadPost()
   }, [loadPost])
 
+  const navigateToLogin = () => {
+    navigate('/login', {
+      state: {
+        from: location,
+      },
+    })
+  }
+
+  const requestLogin = () => {
+    setConfirmModal({
+      title: '로그인이 필요합니다.',
+      description: '로그인하시겠습니까?',
+      action: navigateToLogin,
+    })
+  }
+
   const handleToggleLike = async () => {
+    if (!isAuthenticated) {
+      requestLogin()
+      return
+    }
+
     try {
       if (post.liked === true) {
         await unlikePost(postId)
@@ -196,8 +222,10 @@ function PostDetailPage() {
       <CommentForm
         content={commentContent}
         isEditing={editingCommentId !== null}
+        isAuthenticated={isAuthenticated}
         onChange={setCommentContent}
         onSubmit={handleCommentSubmit}
+        onLoginRequired={requestLogin}
       />
 
       <CommentSection
@@ -215,6 +243,7 @@ function PostDetailPage() {
       <ConfirmModal
         isOpen={confirmModal !== null}
         title={confirmModal?.title}
+        description={confirmModal?.description}
         onCancel={() => setConfirmModal(null)}
         onConfirm={handleConfirm}
       />

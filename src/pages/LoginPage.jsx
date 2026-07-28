@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth.js'
 import { getApiErrorMessage } from '../utils/apiError.js'
 import {
@@ -29,6 +29,7 @@ function getPasswordError(password) {
 }
 
 function LoginPage() {
+  const location = useLocation()
   const navigate = useNavigate()
   const { signIn } = useAuth()
   const [email, setEmail] = useState('')
@@ -51,7 +52,13 @@ function LoginPage() {
         email: email.trim(),
         password,
       })
-      navigate('/posts')
+
+      const from = location.state?.from
+      const redirectTo = from?.pathname
+        ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
+        : '/posts'
+
+      navigate(redirectTo, { replace: true })
     } catch (error) {
       setHelperText(`* ${getApiErrorMessage(error)}`)
     }

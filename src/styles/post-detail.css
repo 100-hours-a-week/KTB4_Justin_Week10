@@ -81,7 +81,7 @@ button.stat-box.liked { border-color: #8d80f3; background: #f0eeff; color: var(-
 #comment-content::placeholder { color: #a0a2ac; }
 #comment-submit-btn { display: block; min-width: 108px; height: 38px; margin: 0 14px 14px auto; padding: 0 18px; border: 0; border-radius: 9px; background: var(--primary); color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; }
 #comment-submit-btn:hover:not(:disabled) { background: var(--primary-dark); }
-#comment-submit-btn:disabled { background: #bbb6df; cursor: not-allowed; }
+#comment-submit-btn:disabled { background: #bbb6df; }
 
 .comment-list { margin-top: 18px; }
 .comment-item { margin-bottom: 10px; padding: 18px 20px; border: 1px solid #eaeaef; border-radius: 14px; background: #fff; }

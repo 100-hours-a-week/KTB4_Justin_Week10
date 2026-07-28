@@ -169,7 +169,6 @@ body:has(.edit-password-page) {
 .edit-post-page .submit-btn:disabled {
   background: #b9b3e9;
   box-shadow: none;
-  cursor: not-allowed;
 }
 
 .login-page .signup-link-btn,
