@@ -5,6 +5,7 @@ import {
   useNavigate,
 } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.js'
+import { logout as logoutRequest } from '../../services/authApi.js'
 import ProfileImage from '../common/ProfileImage.jsx'
 import ProfileDropdown from './ProfileDropdown.jsx'
 
@@ -83,10 +84,16 @@ function Header() {
     searchInput.focus({ preventScroll: true })
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsProfileOpen(false)
-    logout()
-    navigate('/posts')
+
+    try {
+      await logoutRequest()
+    } catch {
+    } finally {
+      logout()
+      navigate('/posts')
+    }
   }
 
   return (
