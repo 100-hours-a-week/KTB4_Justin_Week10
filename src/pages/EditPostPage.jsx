@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import PostForm from '../components/post/PostForm.jsx'
+import { useAuth } from '../hooks/useAuth.js'
 import { getPost, updatePost } from '../services/postApi.js'
 import { uploadImage } from '../services/uploadApi.js'
 import {
@@ -17,13 +18,26 @@ function getFileNameFromUrl(url) {
 function EditPostPage() {
   const { postId } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [post, setPost] = useState(null)
 
   useEffect(() => {
     const loadPost = async () => {
       try {
         const response = await getPost(postId)
-        setPost(response.data)
+        const postData = response.data
+
+        if (Number(postData.user_id) !== Number(user?.id)) {
+          window.alert(
+            getApiErrorMessage({
+              message: API_ERROR_CODE.ACCESS_DENIED,
+            }),
+          )
+          navigate(`/posts/${postId}`, { replace: true })
+          return
+        }
+
+        setPost(postData)
       } catch (error) {
         window.alert(getApiErrorMessage(error))
 
@@ -34,7 +48,7 @@ function EditPostPage() {
     }
 
     loadPost()
-  }, [navigate, postId])
+  }, [navigate, postId, user?.id])
 
   const handleSubmit = async ({ title, content, imageFile }) => {
     const request = { title, content }
