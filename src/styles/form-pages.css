@@ -7,13 +7,9 @@
   --tune-bg: #f7f7fb;
 }
 
-* { box-sizing: border-box; }
-
 body {
-  margin: 0;
   background: var(--tune-bg);
   color: var(--tune-text);
-  font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 body:has(.make-post-page),
@@ -24,8 +20,6 @@ body:has(.edit-profile-page),
 body:has(.edit-password-page) {
   background: var(--tune-bg);
 }
-
-button, input, textarea { font: inherit; }
 
 .login-page,
 .signup-page,

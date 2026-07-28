@@ -7,16 +7,10 @@
   --surface: #ffffff;
 }
 
-* { box-sizing: border-box; }
-
 body {
-  margin: 0;
   background: #fff;
   color: var(--text);
-  font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-
-button, input { font: inherit; }
 
 .posts-page {
   width: min(1400px, calc(100% - 64px));
@@ -174,9 +168,6 @@ button, input { font: inherit; }
 .post-link:focus-visible .post-thumbnail {
   transform: scale(1.02);
 }
-
-.post-thumbnail:not([src]),
-.post-thumbnail[src=""] { display: none; }
 
 .thumbnail-placeholder {
   position: absolute;

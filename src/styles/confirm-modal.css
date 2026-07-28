@@ -8,10 +8,6 @@
   background: rgba(0, 0, 0, 0.5);
 }
 
-.confirm-modal[hidden] {
-  display: none;
-}
-
 .confirm-modal__box {
   width: 320px;
   padding: 32px 24px 24px;

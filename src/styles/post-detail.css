@@ -10,8 +10,6 @@ body:has(.post-detail-page) {
   background: #f7f7fb;
 }
 
-button, textarea { font: inherit; }
-
 .author-profile-image,
 .comment-author-profile-image {
   border-radius: 50%;

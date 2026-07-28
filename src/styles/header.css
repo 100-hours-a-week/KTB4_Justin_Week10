@@ -19,37 +19,6 @@
   font-weight: 800;
 }
 
-.header:not(.posts-header) .header-title::before {
-  content: "♯";
-  color: #6251ed;
-  font-size: 27px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.header-title.header-home-link {
-  cursor: pointer;
-}
-
-.header > .back-btn {
-  position: absolute;
-  top: 50%;
-  left: max(24px, calc(50% - 350px));
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  border: 1px solid #e5e5ec;
-  border-radius: 10px;
-  background: #fff;
-  color: #2b2b34;
-  font-size: 22px;
-  line-height: 1;
-  transform: translateY(-50%);
-  cursor: pointer;
-}
-
-.header > .back-btn:hover { border-color: #bdb6fa; color: #6251ed; }
-
 .profile-menu-btn {
   position: absolute;
   right: max(24px, calc(50% - 350px));
@@ -114,9 +83,6 @@
   background: #f3f1ff;
   color: #6251ed;
 }
-
-.auth-header .profile-menu-btn,
-.auth-header .profile-dropdown { display: none; }
 
 /* 게시글 목록 전용 확장 헤더 */
 .posts-header {
@@ -211,7 +177,6 @@
 .posts-header .header-write-btn { height: 40px; display: inline-flex; align-items: center; gap: 5px; padding: 0 18px; border: 0; border-radius: 9px; background: #6251ed; color: #fff; font-size: 13px; font-weight: 800; text-decoration: none; box-shadow: 0 5px 14px rgba(98,81,237,.2); cursor: pointer; }
 .posts-header .header-write-btn:hover { background: #4e3ed5; }
 .posts-header .profile-menu-btn { position: static; width: auto; height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 11px 0 2px; transform: none; overflow: visible; border: 1px solid #e5e6eb; border-radius: 999px; background: #fff; }
-.posts-header .profile-menu-btn[hidden] { display: none; }
 .posts-header .profile-menu-btn:hover { border-color: #c9c5ec; background: #faf9ff; }
 .posts-header .profile-menu-btn img { width: 34px; height: 34px; flex: 0 0 34px; }
 .posts-header .header-nickname { max-width: 90px; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
