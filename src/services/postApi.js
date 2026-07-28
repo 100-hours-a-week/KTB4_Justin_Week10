@@ -4,6 +4,10 @@ export const getPosts = () => {
   return apiRequest('/posts', 'GET')
 }
 
+export const getLikedPosts = () => {
+  return apiRequest('/posts/liked', 'GET')
+}
+
 export const getPost = (postId) => {
   return apiRequest(`/posts/${postId}`, 'GET')
 }
