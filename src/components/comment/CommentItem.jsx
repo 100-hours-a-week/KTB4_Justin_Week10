@@ -1,13 +1,14 @@
 import { formatDate } from '../../utils/format.js'
+import ProfileImage from '../common/ProfileImage.jsx'
 
 function CommentItem({ comment, isOwner, onEdit, onDelete }) {
   return (
     <article className="comment-item" data-comment-id={comment.id}>
       <div className="comment-meta-row">
         <div className="comment-author-info">
-          <img
+          <ProfileImage
             className="comment-author-profile-image"
-            src={comment.author_profile_image ?? undefined}
+            src={comment.author_profile_image}
             alt="댓글 작성자 프로필 이미지"
           />
           <strong className="comment-author">{comment.author}</strong>

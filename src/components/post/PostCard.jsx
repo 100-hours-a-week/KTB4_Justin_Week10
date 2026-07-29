@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import defaultProfileImage from '../../assets/default-profile.png'
 import { formatCount } from '../../utils/format.js'
+import ProfileImage from '../common/ProfileImage.jsx'
 
 function parseTrackTitle(value) {
   const title = String(value ?? '').trim()
@@ -20,16 +20,7 @@ function parseTrackTitle(value) {
 function PostCard({ post }) {
   const navigate = useNavigate()
   const [hasThumbnail, setHasThumbnail] = useState(Boolean(post.image_url))
-  const [profileImage, setProfileImage] = useState(
-    post.author_profile_image || defaultProfileImage,
-  )
   const track = parseTrackTitle(post.title)
-
-  const handleProfileImageError = () => {
-    if (profileImage !== defaultProfileImage) {
-      setProfileImage(defaultProfileImage)
-    }
-  }
 
   return (
     <article className="post-card" data-post-id={post.id}>
@@ -61,11 +52,10 @@ function PostCard({ post }) {
         <div className="post-card-body">
           <div className="post-card-footer">
             <div className="post-author">
-              <img
+              <ProfileImage
                 className="author-profile-image"
-                src={profileImage}
+                src={post.author_profile_image}
                 alt={`${post.author} 프로필 이미지`}
-                onError={handleProfileImageError}
               />
               <strong className="author">{post.author}</strong>
             </div>

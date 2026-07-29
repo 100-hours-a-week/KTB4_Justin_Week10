@@ -24,6 +24,8 @@ import {
 } from '../utils/apiError.js'
 import { sortByNewest } from '../utils/format.js'
 
+const COMMENTS_PER_PAGE = 10
+
 function PostDetailPage() {
   const { postId } = useParams()
   const location = useLocation()
@@ -34,6 +36,19 @@ function PostDetailPage() {
   const [commentContent, setCommentContent] = useState('')
   const [editingCommentId, setEditingCommentId] = useState(null)
   const [confirmModal, setConfirmModal] = useState(null)
+  const [commentPage, setCommentPage] = useState(1)
+
+  // TODO: 서버 페이지네이션으로 전환하면 comments를 slice하지 않고,
+  // API가 내려주는 현재 페이지 content와 totalPages를 사용한다.
+  const commentTotalPages = Math.max(
+    1,
+    Math.ceil(comments.length / COMMENTS_PER_PAGE),
+  )
+  const currentCommentPage = Math.min(commentPage, commentTotalPages)
+  const visibleComments = comments.slice(
+    (currentCommentPage - 1) * COMMENTS_PER_PAGE,
+    currentCommentPage * COMMENTS_PER_PAGE,
+  )
 
   const loadPost = useCallback(async () => {
     try {
@@ -58,6 +73,12 @@ function PostDetailPage() {
   useEffect(() => {
     loadPost()
   }, [loadPost])
+
+  useEffect(() => {
+    if (commentPage > commentTotalPages) {
+      setCommentPage(commentTotalPages)
+    }
+  }, [commentPage, commentTotalPages])
 
   const navigateToLogin = () => {
     navigate('/login', {
@@ -125,14 +146,15 @@ function PostDetailPage() {
     if (!content) return
 
     try {
-      if (editingCommentId) {
+      if (editingCommentId !== null) {
         await updateComment(postId, editingCommentId, { content })
       } else {
         await createComment(postId, { content })
+        setCommentPage(1)
       }
 
       resetCommentForm()
-      loadPost()
+      await loadPost()
     } catch (error) {
       window.alert(getApiErrorMessage(error))
 
@@ -160,7 +182,7 @@ function PostDetailPage() {
   const removeComment = async (commentId) => {
     try {
       await deleteComment(postId, commentId)
-      loadPost()
+      await loadPost()
     } catch (error) {
       window.alert(getApiErrorMessage(error))
 
@@ -229,7 +251,7 @@ function PostDetailPage() {
       />
 
       <CommentSection
-        comments={comments}
+        comments={visibleComments}
         userId={user?.id}
         onEdit={handleCommentEdit}
         onDelete={(commentId) =>
@@ -239,6 +261,34 @@ function PostDetailPage() {
           })
         }
       />
+
+      {comments.length > COMMENTS_PER_PAGE && (
+        <nav className="comment-pagination" aria-label="댓글 페이지">
+          <button
+            type="button"
+            disabled={currentCommentPage === 1}
+            onClick={() =>
+              setCommentPage((page) => Math.max(1, page - 1))
+            }
+          >
+            이전
+          </button>
+          <span>
+            <strong>{currentCommentPage}</strong> / {commentTotalPages}
+          </span>
+          <button
+            type="button"
+            disabled={currentCommentPage === commentTotalPages}
+            onClick={() =>
+              setCommentPage((page) =>
+                Math.min(commentTotalPages, page + 1),
+              )
+            }
+          >
+            다음
+          </button>
+        </nav>
+      )}
 
       <ConfirmModal
         isOpen={confirmModal !== null}

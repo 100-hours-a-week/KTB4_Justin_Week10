@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { formatCount, formatDate } from '../../utils/format.js'
+import ProfileImage from '../common/ProfileImage.jsx'
 
 function PostDetail({
   post,
@@ -18,9 +19,9 @@ function PostDetail({
 
         <div className="post-meta-row">
           <div className="author-info">
-            <img
+            <ProfileImage
               className="author-profile-image"
-              src={post.author_profile_image ?? undefined}
+              src={post.author_profile_image}
               alt="작성자 프로필 이미지"
             />
             <strong className="author">{post.author}</strong>

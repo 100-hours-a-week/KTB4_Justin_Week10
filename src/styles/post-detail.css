@@ -91,3 +91,50 @@ button.stat-box.liked { border-color: #8d80f3; background: #f0eeff; color: var(-
 .comment-author { font-size: 13px; font-weight: 800; }
 .comment-created-at { color: var(--muted); font-size: 11px; white-space: nowrap; }
 .comment-content { margin: 13px 0 0 41px; color: #464750; font-size: 14px; line-height: 1.65; white-space: pre-wrap; }
+
+.comment-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.comment-pagination button {
+  min-width: 68px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: #31323a;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color .2s, color .2s, transform .2s;
+}
+
+.comment-pagination button:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.comment-pagination button:disabled {
+  color: #aaa6c5;
+  background: #f4f3fa;
+}
+
+.comment-pagination button:focus-visible {
+  outline: 3px solid rgba(98,81,237,.25);
+  outline-offset: 2px;
+}
+
+.comment-pagination span {
+  min-width: 54px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 13px;
+}
+
+.comment-pagination strong {
+  color: var(--primary);
+}
