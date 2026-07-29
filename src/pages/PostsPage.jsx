@@ -112,6 +112,14 @@ function PostsPage() {
 
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('page', String(page))
+
+    if (
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ) {
+      setSearchParams(nextSearchParams)
+      return
+    }
+
     setTransitionHeight(postListViewportRef.current?.offsetHeight ?? null)
     setOutgoingPosts(visiblePosts)
     setSlideDirection(direction)
@@ -205,6 +213,43 @@ function PostsPage() {
     const nextPage = currentPage === totalPages ? 1 : currentPage + 1
     changePage(nextPage, 'next')
   }
+
+  useEffect(() => {
+    const viewport = postListViewportRef.current
+
+    if (!viewport || totalPages <= 1) {
+      return undefined
+    }
+
+    const handleWheel = (event) => {
+      const delta =
+        Math.abs(event.deltaX) > Math.abs(event.deltaY)
+          ? event.deltaX
+          : event.deltaY
+
+      if (Math.abs(delta) < 12) {
+        return
+      }
+
+      event.preventDefault()
+
+      if (isPageTransitioning) {
+        return
+      }
+
+      if (delta > 0) {
+        handleNextPage()
+      } else {
+        handlePreviousPage()
+      }
+    }
+
+    viewport.addEventListener('wheel', handleWheel, { passive: false })
+
+    return () => {
+      viewport.removeEventListener('wheel', handleWheel)
+    }
+  })
 
   return (
     <main className="posts-page">
