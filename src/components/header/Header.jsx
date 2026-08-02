@@ -122,7 +122,6 @@ function Header() {
             ♯
           </span>
           <span>TuneLog</span>
-          <span className="deployment-badge">CI/CD v1</span>
         </Link>
 
         <nav className="main-nav" aria-label="주요 메뉴">
