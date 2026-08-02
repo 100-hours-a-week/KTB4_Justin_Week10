@@ -83,3 +83,6 @@ jobs:
 
           docker compose logs --tail=100 frontend
           exit 1
+      - name: Clean up old images
+        if: success()
+        run: docker image prune -f
