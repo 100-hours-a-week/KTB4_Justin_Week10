@@ -3,24 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { formatCount } from '../../utils/format.js'
 import ProfileImage from '../common/ProfileImage.jsx'
 
-function parseTrackTitle(value) {
-  const title = String(value ?? '').trim()
-  const separatorIndex = title.indexOf('-')
-
-  if (separatorIndex < 0) {
-    return { artist: '', title }
-  }
-
-  return {
-    artist: title.slice(0, separatorIndex).trim(),
-    title: title.slice(separatorIndex + 1).trim(),
-  }
-}
-
 function PostCard({ post }) {
   const navigate = useNavigate()
   const [hasThumbnail, setHasThumbnail] = useState(Boolean(post.image_url))
-  const track = parseTrackTitle(post.title)
 
   return (
     <article className="post-card" data-post-id={post.id}>
@@ -34,7 +19,7 @@ function PostCard({ post }) {
             <img
               className="post-thumbnail"
               src={post.image_url}
-              alt={`${track.artist} - ${track.title} 앨범 이미지`}
+              alt={`${post.artist} - ${post.track_title} 앨범 이미지`}
               width="600"
               height="600"
               onError={() => setHasThumbnail(false)}
@@ -44,8 +29,8 @@ function PostCard({ post }) {
             <span>#</span>
           </div>
           <div className="track-overlay">
-            <span className="track-artist">{track.artist}</span>
-            <strong className="track-title">{track.title}</strong>
+            <span className="track-artist">{post.artist}</span>
+            <strong className="track-title">{post.track_title}</strong>
           </div>
         </div>
 

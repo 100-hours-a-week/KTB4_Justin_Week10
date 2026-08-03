@@ -1,17 +1,39 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getGenres } from '../../services/genreApi.js'
 
 function PostForm({
-  initialTitle = '',
+  initialTrackTitle = '',
+  initialArtist = '',
+  initialGenre = '',
   initialContent = '',
   currentImageName,
   mode = 'create',
   onSubmit,
 }) {
-  const [title, setTitle] = useState(initialTitle)
+  const [trackTitle, setTrackTitle] = useState(initialTrackTitle)
+  const [artist, setArtist] = useState(initialArtist)
+  const [genre, setGenre] = useState(initialGenre)
+  const [genres, setGenres] = useState([])
+  const [genreLoadFailed, setGenreLoadFailed] = useState(false)
   const [content, setContent] = useState(initialContent)
   const [imageFile, setImageFile] = useState(null)
-  const isValid = Boolean(title.trim() && content.trim())
+  const isValid = Boolean(
+    trackTitle.trim() && artist.trim() && genre && content.trim(),
+  )
   const isEdit = mode === 'edit'
+
+  useEffect(() => {
+    const loadGenres = async () => {
+      try {
+        const response = await getGenres()
+        setGenres(response.data)
+      } catch {
+        setGenreLoadFailed(true)
+      }
+    }
+
+    loadGenres()
+  }, [])
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -19,7 +41,9 @@ function PostForm({
     if (!isValid) return
 
     onSubmit({
-      title: title.trim(),
+      trackTitle: trackTitle.trim(),
+      artist: artist.trim(),
+      genre,
       content: content.trim(),
       imageFile,
     })
@@ -31,18 +55,54 @@ function PostForm({
       className="post-form"
       onSubmit={handleSubmit}
     >
-      <div className="form-group">
-        <label htmlFor="title">제목*</label>
-        <input
-          id="title"
-          name="title"
-          type="text"
-          maxLength="26"
-          placeholder="가수 - 제목 형태로 입력해주세요"
-          required
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-        />
+      <div className="post-track-fields">
+        <div className="form-group">
+          <label htmlFor="track-title">제목*</label>
+          <input
+            id="track-title"
+            name="track-title"
+            type="text"
+            maxLength="200"
+            placeholder="곡 제목"
+            required
+            value={trackTitle}
+            onChange={(event) => setTrackTitle(event.target.value)}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="artist">가수*</label>
+          <input
+            id="artist"
+            name="artist"
+            type="text"
+            maxLength="100"
+            placeholder="가수 또는 팀명"
+            required
+            value={artist}
+            onChange={(event) => setArtist(event.target.value)}
+          />
+        </div>
+
+        <div className="form-group genre-form-group">
+          <label htmlFor="genre">장르*</label>
+          <select
+            id="genre"
+            name="genre"
+            required
+            value={genre}
+            onChange={(event) => setGenre(event.target.value)}
+          >
+            <option value="" disabled>
+              {genreLoadFailed ? '불러오기 실패' : '장르 선택'}
+            </option>
+            {genres.map((item) => (
+              <option key={item.code} value={item.code}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="form-group">
@@ -58,7 +118,9 @@ function PostForm({
       </div>
 
       <p className="helper-text">
-        {isEdit ? '* helper text' : '* 제목, 내용을 모두 작성해주세요'}
+        {genreLoadFailed
+          ? '* 장르 목록을 불러오지 못했습니다.'
+          : '* 곡 제목, 가수, 장르, 내용을 모두 작성해주세요'}
       </p>
 
       <div className="form-group image-group">

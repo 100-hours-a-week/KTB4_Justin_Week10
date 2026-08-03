@@ -50,8 +50,13 @@ function EditPostPage() {
     loadPost()
   }, [navigate, postId, user?.id])
 
-  const handleSubmit = async ({ title, content, imageFile }) => {
-    const request = { title, content }
+  const handleSubmit = async ({ trackTitle, artist, genre, content, imageFile }) => {
+    const request = {
+      track_title: trackTitle,
+      artist,
+      genre,
+      content,
+    }
 
     try {
       if (imageFile) {
@@ -78,7 +83,9 @@ function EditPostPage() {
       <PostForm
         key={post.id}
         mode="edit"
-        initialTitle={post.title}
+        initialTrackTitle={post.track_title}
+        initialArtist={post.artist}
+        initialGenre={post.genre?.code ?? post.genre ?? ''}
         initialContent={post.content}
         currentImageName={getFileNameFromUrl(post.image_url)}
         onSubmit={handleSubmit}
