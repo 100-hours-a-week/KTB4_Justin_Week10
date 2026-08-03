@@ -1,11 +1,29 @@
 import { apiRequest } from './apiClient.js'
 
-export const getPosts = () => {
-  return apiRequest('/posts', 'GET')
+function createPageQuery({ page = 0, size = 10, genre = '' } = {}) {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  })
+
+  if (genre) {
+    params.set('genre', genre)
+  }
+
+  return params
 }
 
-export const getLikedPosts = () => {
-  return apiRequest('/posts/liked', 'GET')
+export const getPosts = ({ sort = 'latest', ...pageOptions } = {}) => {
+  const params = createPageQuery(pageOptions)
+  params.set('sort', sort)
+
+  return apiRequest(`/posts?${params.toString()}`, 'GET')
+}
+
+export const getLikedPosts = (pageOptions = {}) => {
+  const params = createPageQuery(pageOptions)
+
+  return apiRequest(`/posts/liked?${params.toString()}`, 'GET')
 }
 
 export const getPost = (postId) => {
