@@ -52,13 +52,32 @@ function PostDetailPage() {
 
   const loadPost = useCallback(async () => {
     try {
-      const [postResponse, commentsResponse] = await Promise.all([
-        getPost(postId),
-        getComments(postId),
-      ])
-
+     const postResponse = await getPost(postId)
       setPost(postResponse.data)
-      setComments(sortByNewest(commentsResponse.data))
+    } catch (error) {
+      if (error.message === API_ERROR_CODE.POST_NOT_FOUND) {
+        window.alert(getApiErrorMessage(error))
+        navigate('/posts', { replace: true })
+        return
+      }
+
+      window.alert(getApiErrorMessage(error))
+    }
+  }, [navigate, postId])
+
+  const loadComments = useCallback(async () => {
+    try {
+      const commentsResponse = await getComments(postId)
+      const commentItems = Array.isArray(commentsResponse.data)
+        ? commentsResponse.data
+        : []
+
+      setComments(sortByNewest(commentItems))
+      setPost((currentPost) =>
+        currentPost
+          ? { ...currentPost, comment_count: commentItems.length }
+          : currentPost,
+      )
     } catch (error) {
       if (error.message === API_ERROR_CODE.POST_NOT_FOUND) {
         window.alert(getApiErrorMessage(error))
@@ -73,6 +92,14 @@ function PostDetailPage() {
   useEffect(() => {
     loadPost()
   }, [loadPost])
+
+  useEffect(() => {
+    if (String(post?.id) !== String(postId)) {
+      return
+    }
+
+    loadComments()
+  }, [loadComments, post?.id, postId])
 
   useEffect(() => {
     if (commentPage > commentTotalPages) {
@@ -154,7 +181,7 @@ function PostDetailPage() {
       }
 
       resetCommentForm()
-      await loadPost()
+      await loadComments()
     } catch (error) {
       window.alert(getApiErrorMessage(error))
 
@@ -165,7 +192,7 @@ function PostDetailPage() {
 
       if (error.message === API_ERROR_CODE.COMMENT_NOT_FOUND) {
         resetCommentForm()
-        loadPost()
+        loadComments()
       }
     }
   }
@@ -182,12 +209,12 @@ function PostDetailPage() {
   const removeComment = async (commentId) => {
     try {
       await deleteComment(postId, commentId)
-      await loadPost()
+      await loadComments()
     } catch (error) {
       window.alert(getApiErrorMessage(error))
 
       if (error.message === API_ERROR_CODE.COMMENT_NOT_FOUND) {
-        loadPost()
+        loadComments()
       }
     }
   }
