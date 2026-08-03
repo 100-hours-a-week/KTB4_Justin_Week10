@@ -412,6 +412,16 @@ body {
   color: var(--primary);
 }
 
+@media (max-height: 900px) and (min-width: 900px) {
+  .posts-page {
+    padding-bottom: 8px;
+  }
+
+  .post-pagination {
+    margin-top: 12px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .post-list-viewport.is-transitioning .post-list-current,
   .post-list-viewport.is-transitioning .post-list-outgoing {
