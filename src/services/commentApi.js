@@ -1,7 +1,15 @@
 import { apiRequest } from './apiClient.js'
 
-export const getComments = (postId) => {
-  return apiRequest(`/posts/${postId}/comments`, 'GET')
+export const getComments = (postId, { page = 0, size = 10 } = {}) => {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  })
+
+  return apiRequest(
+    `/posts/${postId}/comments?${params.toString()}`,
+    'GET',
+  )
 }
 
 export const createComment = (postId, request) => {
