@@ -18,49 +18,6 @@ body {
   padding: 8px 0 16px;
 }
 
-.search-section {
-  display: flex;
-  justify-content: center;
-  padding: 0 0 4px;
-}
-
-.search-box {
-  width: min(540px, 100%);
-  height: 40px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 2px 12px rgba(25, 24, 42, .03);
-  color: #20212a;
-  transition: border-color .2s, box-shadow .2s;
-}
-
-.search-box:focus-within {
-  border-color: #aaa1f7;
-  box-shadow: 0 0 0 4px rgba(98, 81, 237, .09);
-}
-
-.search-box > span {
-  font-size: 27px;
-  line-height: 1;
-  transform: scaleX(-1) rotate(-18deg);
-}
-
-.search-box input {
-  width: 100%;
-  border: 0;
-  outline: 0;
-  color: var(--text);
-  background: transparent;
-  font-size: 14px;
-}
-
-.search-box input::placeholder { color: #a3a7b3; }
-
 .list-toolbar {
   min-height: 48px;
   display: flex;
@@ -110,15 +67,15 @@ body {
 }
 
 .genre-sidebar-title {
-  margin: 0 11px 12px;
-  color: #999aa3;
-  font-size: 10px;
+  margin: 0 12px 13px;
+  color: #858791;
+  font-size: 13px;
   font-weight: 850;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
 }
 
 .genre-tabs {
-  --genre-tab-step: 38px;
+  --genre-tab-step: 42px;
   position: relative;
   display: grid;
   gap: 4px;
@@ -129,7 +86,7 @@ body {
   top: 0;
   right: 0;
   left: 0;
-  height: 34px;
+  height: 38px;
   border-radius: 9px;
   background: #efedff;
   transform: translateY(calc(var(--selected-genre-index) * var(--genre-tab-step)));
@@ -141,13 +98,13 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  height: 34px;
-  padding: 0 11px;
+  height: 38px;
+  padding: 0 12px;
   border: 0;
   border-radius: 9px;
   background: transparent;
   color: #666873;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   text-align: left;
   cursor: pointer;

@@ -160,6 +160,56 @@
 .posts-header .main-nav .active { color: #6251ed; }
 .posts-header .main-nav .active::after { content: ""; position: absolute; right: 0; bottom: 9px; left: 0; height: 2px; border-radius: 2px; background: #6251ed; }
 
+.posts-header .header-search {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(540px, 42vw);
+  transform: translate(-50%, -50%);
+}
+
+.posts-header .search-section {
+  display: flex;
+  justify-content: center;
+}
+
+.posts-header .search-box {
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  border: 1px solid #e8e9ee;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(25, 24, 42, .03);
+  color: #20212a;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.posts-header .search-box:focus-within {
+  border-color: #aaa1f7;
+  box-shadow: 0 0 0 4px rgba(98, 81, 237, .09);
+}
+
+.posts-header .search-box > span {
+  font-size: 27px;
+  line-height: 1;
+  transform: scaleX(-1) rotate(-18deg);
+}
+
+.posts-header .search-box input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #17171b;
+  background: transparent;
+  font-size: 14px;
+}
+
+.posts-header .search-box input::placeholder { color: #a3a7b3; }
+
 .posts-header .header-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 .posts-header .header-login-link {
   height: 40px;
@@ -184,3 +234,25 @@
 .posts-header .profile-dropdown { top: 65px; right: 0; left: auto; width: 132px; padding: 6px; border: 1px solid #e7e7ed; border-radius: 10px; background: #fff; box-shadow: 0 10px 30px rgba(27,27,38,.12); }
 .posts-header .profile-dropdown a,
 .posts-header .profile-dropdown button { height: 36px; border-radius: 7px; font-size: 12px; }
+
+@media (max-width: 1180px) {
+  .posts-header .main-nav { margin-left: 36px; }
+  .posts-header .header-search { width: 36vw; }
+}
+
+@media (max-width: 900px) {
+  .posts-header.has-search { height: 128px; }
+  .posts-header.has-search .header-inner {
+    align-items: flex-start;
+    padding-top: 18px;
+  }
+  .posts-header .header-inner { width: min(100% - 32px, 1400px); }
+  .posts-header .main-nav { height: 60px; margin-left: 28px; }
+  .posts-header .main-nav .active::after { bottom: 4px; }
+  .posts-header.has-search .header-actions { padding-top: 1px; }
+  .posts-header .header-search {
+    top: 76px;
+    width: 100%;
+    transform: translateX(-50%);
+  }
+}

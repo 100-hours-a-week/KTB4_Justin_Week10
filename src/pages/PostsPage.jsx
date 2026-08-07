@@ -6,7 +6,6 @@ import {
 } from 'react-router-dom'
 import PostCard from '../components/post/PostCard.jsx'
 import ConfirmModal from '../components/common/ConfirmModal.jsx'
-import PostSearchBar from '../components/post/PostSearchBar.jsx'
 import PostSortTabs from '../components/post/PostSortTabs.jsx'
 import GenreSidebar from '../components/post/GenreSidebar.jsx'
 import { useAuth } from '../hooks/useAuth.js'
@@ -289,7 +288,6 @@ function PostsPage() {
 
   return (
     <main className="posts-page">
-      <PostSearchBar />
       <PostSortTabs
         activeFilter={activeFilter}
         onFilterChange={handleFilterChange}
