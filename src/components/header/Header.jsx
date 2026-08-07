@@ -7,6 +7,7 @@ import {
 import { useAuth } from '../../hooks/useAuth.js'
 import { logout as logoutRequest } from '../../services/authApi.js'
 import ProfileImage from '../common/ProfileImage.jsx'
+import PostSearchBar from '../post/PostSearchBar.jsx'
 import ProfileDropdown from './ProfileDropdown.jsx'
 
 function Header() {
@@ -22,6 +23,7 @@ function Header() {
   const isSignupPage = pathname === '/signup'
   const isAuthPage = isLoginPage || isSignupPage
   const isPostsRoute = pathname === '/posts' || pathname.startsWith('/posts/')
+  const isPostsPage = pathname === '/posts'
   const showBackButton =
     isSignupPage ||
     pathname === '/posts/new' ||
@@ -31,25 +33,6 @@ function Header() {
     setIsProfileOpen(false)
     setIsSearchActive(false)
   }, [pathname])
-
-  useEffect(() => {
-    if (!isPostsRoute) return undefined
-
-    const searchInput = document.querySelector('#post-search')
-
-    if (!searchInput) return undefined
-
-    const activateSearchTab = () => setIsSearchActive(true)
-    const activatePostsTab = () => setIsSearchActive(false)
-
-    searchInput.addEventListener('focus', activateSearchTab)
-    searchInput.addEventListener('blur', activatePostsTab)
-
-    return () => {
-      searchInput.removeEventListener('focus', activateSearchTab)
-      searchInput.removeEventListener('blur', activatePostsTab)
-    }
-  }, [isPostsRoute])
 
   useEffect(() => {
     if (!isProfileOpen) return undefined
@@ -99,7 +82,7 @@ function Header() {
   return (
     <header
       ref={headerRef}
-      className={`header posts-header${isAuthPage ? ' auth-header' : ''}`}
+      className={`header posts-header${isAuthPage ? ' auth-header' : ''}${isPostsPage ? ' has-search' : ''}`}
     >
       <div className="header-inner">
         {showBackButton && (
@@ -140,6 +123,15 @@ function Header() {
             검색
           </button>
         </nav>
+
+        {isPostsPage && (
+          <div className="header-search">
+            <PostSearchBar
+              onFocus={() => setIsSearchActive(true)}
+              onBlur={() => setIsSearchActive(false)}
+            />
+          </div>
+        )}
 
         <div className="header-actions">
           {isAuthPage ? (

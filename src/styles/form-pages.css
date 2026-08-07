@@ -243,6 +243,42 @@ body:has(.edit-password-page) {
   line-height: 1.65;
 }
 
+.make-post-page .post-track-fields,
+.edit-post-page .post-track-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(140px, .68fr);
+  gap: 12px;
+}
+
+.make-post-page .post-track-fields .form-group,
+.edit-post-page .post-track-fields .form-group { min-width: 0; }
+
+.make-post-page .genre-form-group select,
+.edit-post-page .genre-form-group select {
+  width: 100%;
+  height: 46px;
+  padding: 0 36px 0 14px;
+  border: 1px solid var(--tune-line);
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  color: var(--tune-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.make-post-page .genre-form-group select:focus,
+.edit-post-page .genre-form-group select:focus {
+  border-color: #a79ff5;
+  box-shadow: 0 0 0 4px rgba(98, 81, 237, .09);
+}
+
+@media (max-width: 680px) {
+  .make-post-page .post-track-fields,
+  .edit-post-page .post-track-fields { grid-template-columns: 1fr; gap: 0; }
+}
+
 .make-post-page .image-group,
 .edit-post-page .image-group { padding: 16px; border-radius: 10px; background: #f7f7fa; }
 .make-post-page input[type="file"],

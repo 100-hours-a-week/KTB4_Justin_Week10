@@ -6,12 +6,12 @@ import {
 } from 'react-router-dom'
 import PostCard from '../components/post/PostCard.jsx'
 import ConfirmModal from '../components/common/ConfirmModal.jsx'
-import PostSearchBar from '../components/post/PostSearchBar.jsx'
 import PostSortTabs from '../components/post/PostSortTabs.jsx'
+import GenreSidebar from '../components/post/GenreSidebar.jsx'
 import { useAuth } from '../hooks/useAuth.js'
 import { getLikedPosts, getPosts } from '../services/postApi.js'
+import { getGenres } from '../services/genreApi.js'
 import '../styles/posts.css'
-import { sortByNewest } from '../utils/format.js'
 
 const POSTS_PER_PAGE = 10
 
@@ -41,46 +41,92 @@ function PostsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { isAuthenticated } = useAuth()
   const [posts, setPosts] = useState(null)
+  const [pageMeta, setPageMeta] = useState({
+    total_pages: 0,
+    total_elements: 0,
+  })
+  const [genres, setGenres] = useState([])
   const [activeFilter, setActiveFilter] = useState('latest')
+  const [isListLoading, setIsListLoading] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [slideDirection, setSlideDirection] = useState('next')
   const [outgoingPosts, setOutgoingPosts] = useState(null)
   const [isPageTransitioning, setIsPageTransitioning] = useState(false)
   const [transitionHeight, setTransitionHeight] = useState(null)
   const postListViewportRef = useRef(null)
+  const pendingTransitionRef = useRef(false)
 
   const pageParam = Number(searchParams.get('page'))
   const requestedPage =
     Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1
-
-  // TODO: 서버 페이지네이션으로 전환하면 전체 배열로 계산하지 않고
-  // API 응답의 totalPages 값을 사용한다.
-  const totalPages =
-    posts === null ? 1 : Math.max(1, Math.ceil(posts.length / POSTS_PER_PAGE))
+  const selectedGenre = searchParams.get('genre') ?? ''
+  const totalPages = Math.max(1, pageMeta.total_pages)
   const currentPage = Math.min(requestedPage, totalPages)
-
-  // TODO: 서버 페이지네이션으로 전환하면 이 slice를 제거하고,
-  // API가 현재 페이지에 맞춰 내려준 content를 그대로 렌더링한다.
-  const visiblePosts =
-    posts === null
-      ? null
-      : posts.slice(
-          (currentPage - 1) * POSTS_PER_PAGE,
-          currentPage * POSTS_PER_PAGE,
-        )
+  const visiblePosts = posts
 
   useEffect(() => {
-    const loadPosts = async () => {
-      try {
-        const response = await getPosts()
-        const postItems = Array.isArray(response.data) ? response.data : []
+    let cancelled = false
 
-        setPosts(sortByNewest(postItems))
+    const loadPostPage = async () => {
+      setIsListLoading(true)
+
+      try {
+        const pageOptions = {
+          page: requestedPage - 1,
+          size: POSTS_PER_PAGE,
+          genre: selectedGenre,
+        }
+        const response =
+          activeFilter === 'liked'
+            ? await getLikedPosts(pageOptions)
+            : await getPosts({ ...pageOptions, sort: activeFilter })
+        const nextPage = response.data ?? {}
+
+        if (cancelled) {
+          return
+        }
+
+        setPosts(Array.isArray(nextPage.content) ? nextPage.content : [])
+        setPageMeta({
+          total_pages: nextPage.total_pages ?? 0,
+          total_elements: nextPage.total_elements ?? 0,
+        })
+
+        if (pendingTransitionRef.current) {
+          pendingTransitionRef.current = false
+          setIsPageTransitioning(true)
+        }
       } catch {
+        if (!cancelled) {
+          pendingTransitionRef.current = false
+          setPosts([])
+          setPageMeta({ total_pages: 0, total_elements: 0 })
+        }
+      } finally {
+        if (!cancelled) {
+          setIsListLoading(false)
+        }
       }
     }
 
-    loadPosts()
+    loadPostPage()
+
+    return () => {
+      cancelled = true
+    }
+  }, [activeFilter, requestedPage, selectedGenre])
+
+  useEffect(() => {
+    const loadGenres = async () => {
+      try {
+        const response = await getGenres()
+        setGenres(Array.isArray(response.data) ? response.data : [])
+      } catch {
+        setGenres([])
+      }
+    }
+
+    loadGenres()
   }, [])
 
   useEffect(() => {
@@ -105,94 +151,83 @@ function PostsPage() {
     return () => window.clearTimeout(transitionTimer)
   }, [isPageTransitioning])
 
+  const prepareListTransition = (direction) => {
+    if (
+      posts === null ||
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ) {
+      pendingTransitionRef.current = false
+      return
+    }
+
+    setTransitionHeight(postListViewportRef.current?.offsetHeight ?? null)
+    setOutgoingPosts(posts)
+    setSlideDirection(direction)
+    pendingTransitionRef.current = true
+  }
+
   const changePage = (page, direction) => {
-    if (isPageTransitioning) {
+    if (isPageTransitioning || isListLoading) {
       return
     }
 
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('page', String(page))
 
-    if (
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    ) {
-      setSearchParams(nextSearchParams)
-      return
-    }
-
-    setTransitionHeight(postListViewportRef.current?.offsetHeight ?? null)
-    setOutgoingPosts(visiblePosts)
-    setSlideDirection(direction)
-    setIsPageTransitioning(true)
+    prepareListTransition(direction)
     setSearchParams(nextSearchParams)
   }
 
   const resetPage = () => {
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('page', '1')
-    setSlideDirection('next')
     setSearchParams(nextSearchParams, { replace: true })
   }
 
-  const loadLatestPosts = async () => {
-    try {
-      const response = await getPosts()
-      const postItems = Array.isArray(response.data) ? response.data : []
-
-      setPosts(sortByNewest(postItems))
-      setActiveFilter('latest')
-      resetPage()
-    } catch {
+  const handleGenreChange = (genre) => {
+    if (genre === selectedGenre || isPageTransitioning || isListLoading) {
+      return
     }
+
+    const currentIndex = Math.max(
+      0,
+      genres.findIndex((item) => item.code === selectedGenre) + 1,
+    )
+    const nextIndex = Math.max(
+      0,
+      genres.findIndex((item) => item.code === genre) + 1,
+    )
+    const nextSearchParams = new URLSearchParams(searchParams)
+
+    if (genre) {
+      nextSearchParams.set('genre', genre)
+    } else {
+      nextSearchParams.delete('genre')
+    }
+
+    prepareListTransition(nextIndex >= currentIndex ? 'next' : 'previous')
+    nextSearchParams.set('page', '1')
+    setSearchParams(nextSearchParams, { replace: true })
   }
 
-  const loadLikedPosts = async () => {
-    if (!isAuthenticated) {
+  const handleFilterChange = (filter) => {
+    if (filter === activeFilter || isPageTransitioning || isListLoading) {
+      return
+    }
+
+    if (filter === 'liked' && !isAuthenticated) {
       setIsLoginModalOpen(true)
       return
     }
 
-    try {
-      const response = await getLikedPosts()
-      const postItems = Array.isArray(response.data) ? response.data : []
-
-      setPosts(postItems)
-      setActiveFilter('liked')
-      resetPage()
-    } catch {
-    }
-  }
-
-  const loadPopularPosts = async () => {
-    try {
-      const response = await getPosts()
-      const postItems = Array.isArray(response.data) ? response.data : []
-
-      setPosts(
-        [...postItems].sort(
-          (a, b) => (b.like_count ?? 0) - (a.like_count ?? 0),
-        ),
-      )
-      setActiveFilter('popular')
-      resetPage()
-    } catch {
-    }
-  }
-
-  const handleFilterChange = (filter) => {
-    if (filter === 'latest') {
-      loadLatestPosts()
-      return
-    }
-
-    if (filter === 'popular') {
-      loadPopularPosts()
-      return
-    }
-
-    if (filter === 'liked') {
-      loadLikedPosts()
-    }
+    const filterOrder = ['latest', 'popular', 'liked']
+    prepareListTransition(
+      filterOrder.indexOf(filter) >= filterOrder.indexOf(activeFilter)
+        ? 'next'
+        : 'previous',
+    )
+    setActiveFilter(filter)
+    resetPage()
   }
 
   const navigateToLogin = () => {
@@ -253,66 +288,75 @@ function PostsPage() {
 
   return (
     <main className="posts-page">
-      <PostSearchBar />
       <PostSortTabs
         activeFilter={activeFilter}
         onFilterChange={handleFilterChange}
       />
 
-      {visiblePosts !== null && (
-        <div
-          ref={postListViewportRef}
-          className={`post-list-viewport slide-${slideDirection} ${
-            isPageTransitioning ? 'is-transitioning' : ''
-          }`}
-          style={
-            isPageTransitioning && transitionHeight !== null
-              ? { height: `${transitionHeight}px` }
-              : undefined
-          }
-        >
-          {isPageTransitioning && outgoingPosts !== null && (
-            <section
-              className="post-list post-list-outgoing"
-              aria-hidden="true"
+      <div className="posts-content-layout">
+        <GenreSidebar
+          genres={genres}
+          selectedGenre={selectedGenre}
+          onGenreChange={handleGenreChange}
+        />
+
+        <div className="posts-results">
+          {visiblePosts !== null && (
+            <div
+              ref={postListViewportRef}
+              className={`post-list-viewport slide-${slideDirection} ${
+                isPageTransitioning ? 'is-transitioning' : ''
+              }`}
+              style={
+                isPageTransitioning && transitionHeight !== null
+                  ? { height: `${transitionHeight}px` }
+                  : undefined
+              }
             >
-              {outgoingPosts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-              {renderPageSpacers(outgoingPosts.length)}
-            </section>
+              {isPageTransitioning && outgoingPosts !== null && (
+                <section
+                  className="post-list post-list-outgoing"
+                  aria-hidden="true"
+                >
+                  {outgoingPosts.map((post) => (
+                    <PostCard key={post.id} post={post} />
+                  ))}
+                  {renderPageSpacers(outgoingPosts.length)}
+                </section>
+              )}
+
+              <section
+                key={`${activeFilter}-${selectedGenre}-${currentPage}`}
+                className="post-list post-list-current"
+                aria-live="polite"
+              >
+                {visiblePosts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+                {renderPageSpacers(visiblePosts.length)}
+              </section>
+            </div>
           )}
 
-          <section
-            key={`${activeFilter}-${currentPage}`}
-            className="post-list post-list-current"
-            aria-live="polite"
-          >
-            {visiblePosts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-            {renderPageSpacers(visiblePosts.length)}
-          </section>
+          {posts !== null && posts.length === 0 && !isListLoading && (
+            <p className="post-empty">조건에 맞는 게시글이 없습니다.</p>
+          )}
+
+          {pageMeta.total_elements > 0 && totalPages > 1 && (
+            <nav className="post-pagination" aria-label="게시글 페이지">
+              <button type="button" onClick={handlePreviousPage}>
+                이전
+              </button>
+              <span>
+                <strong>{currentPage}</strong> / {totalPages}
+              </span>
+              <button type="button" onClick={handleNextPage}>
+                다음
+              </button>
+            </nav>
+          )}
         </div>
-      )}
-
-      {posts !== null && posts.length === 0 && (
-        <p className="post-empty">조건에 맞는 게시글이 없습니다.</p>
-      )}
-
-      {posts !== null && posts.length > 0 && totalPages > 1 && (
-        <nav className="post-pagination" aria-label="게시글 페이지">
-          <button type="button" onClick={handlePreviousPage}>
-            이전
-          </button>
-          <span>
-            <strong>{currentPage}</strong> / {totalPages}
-          </span>
-          <button type="button" onClick={handleNextPage}>
-            다음
-          </button>
-        </nav>
-      )}
+      </div>
 
       <ConfirmModal
         isOpen={isLoginModalOpen}

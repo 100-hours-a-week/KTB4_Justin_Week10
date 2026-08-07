@@ -15,7 +15,9 @@ function PostDetail({
   return (
     <article className="post-detail">
       <section className="post-header">
-        <h2 className="post-title">{post.title}</h2>
+        <h2 className="post-title">
+          {post.artist} - {post.track_title}
+        </h2>
 
         <div className="post-meta-row">
           <div className="author-info">

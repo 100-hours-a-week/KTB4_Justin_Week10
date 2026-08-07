@@ -7,8 +7,13 @@ import { getApiErrorMessage } from '../utils/apiError.js'
 function CreatePostPage() {
   const navigate = useNavigate()
 
-  const handleSubmit = async ({ title, content, imageFile }) => {
-    const request = { title, content }
+  const handleSubmit = async ({ trackTitle, artist, genre, content, imageFile }) => {
+    const request = {
+      track_title: trackTitle,
+      artist,
+      genre,
+      content,
+    }
 
     try {
       if (imageFile) {

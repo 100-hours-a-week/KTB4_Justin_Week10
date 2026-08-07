@@ -30,9 +30,6 @@ function PostSortTabs({
           <span aria-hidden="true">♡</span> 좋아요 모아보기
         </button>
       </div>
-      <span className="category-label">
-        전체 게시글 <span aria-hidden="true">⌄</span>
-      </span>
     </section>
   )
 }

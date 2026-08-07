@@ -22,7 +22,6 @@ import {
   API_ERROR_CODE,
   getApiErrorMessage,
 } from '../utils/apiError.js'
-import { sortByNewest } from '../utils/format.js'
 
 const COMMENTS_PER_PAGE = 10
 
@@ -37,28 +36,18 @@ function PostDetailPage() {
   const [editingCommentId, setEditingCommentId] = useState(null)
   const [confirmModal, setConfirmModal] = useState(null)
   const [commentPage, setCommentPage] = useState(1)
+  const [commentPageMeta, setCommentPageMeta] = useState({
+    total_pages: 0,
+    total_elements: 0,
+  })
 
-  // TODO: 서버 페이지네이션으로 전환하면 comments를 slice하지 않고,
-  // API가 내려주는 현재 페이지 content와 totalPages를 사용한다.
-  const commentTotalPages = Math.max(
-    1,
-    Math.ceil(comments.length / COMMENTS_PER_PAGE),
-  )
+  const commentTotalPages = Math.max(1, commentPageMeta.total_pages)
   const currentCommentPage = Math.min(commentPage, commentTotalPages)
-  const visibleComments = comments.slice(
-    (currentCommentPage - 1) * COMMENTS_PER_PAGE,
-    currentCommentPage * COMMENTS_PER_PAGE,
-  )
 
   const loadPost = useCallback(async () => {
     try {
-      const [postResponse, commentsResponse] = await Promise.all([
-        getPost(postId),
-        getComments(postId),
-      ])
-
+     const postResponse = await getPost(postId)
       setPost(postResponse.data)
-      setComments(sortByNewest(commentsResponse.data))
     } catch (error) {
       if (error.message === API_ERROR_CODE.POST_NOT_FOUND) {
         window.alert(getApiErrorMessage(error))
@@ -70,9 +59,52 @@ function PostDetailPage() {
     }
   }, [navigate, postId])
 
+  const loadComments = useCallback(async (page = commentPage) => {
+    try {
+      const commentsResponse = await getComments(postId, {
+        page: page - 1,
+        size: COMMENTS_PER_PAGE,
+      })
+      const commentPageData = commentsResponse.data ?? {}
+      const commentItems = Array.isArray(commentPageData.content)
+        ? commentPageData.content
+        : []
+
+      setComments(commentItems)
+      setCommentPageMeta({
+        total_pages: commentPageData.total_pages ?? 0,
+        total_elements: commentPageData.total_elements ?? 0,
+      })
+      setPost((currentPost) =>
+        currentPost
+          ? {
+              ...currentPost,
+              comment_count: commentPageData.total_elements ?? 0,
+            }
+          : currentPost,
+      )
+    } catch (error) {
+      if (error.message === API_ERROR_CODE.POST_NOT_FOUND) {
+        window.alert(getApiErrorMessage(error))
+        navigate('/posts', { replace: true })
+        return
+      }
+
+      window.alert(getApiErrorMessage(error))
+    }
+  }, [commentPage, navigate, postId])
+
   useEffect(() => {
     loadPost()
   }, [loadPost])
+
+  useEffect(() => {
+    if (String(post?.id) !== String(postId)) {
+      return
+    }
+
+    loadComments()
+  }, [loadComments, post?.id, postId])
 
   useEffect(() => {
     if (commentPage > commentTotalPages) {
@@ -148,13 +180,18 @@ function PostDetailPage() {
     try {
       if (editingCommentId !== null) {
         await updateComment(postId, editingCommentId, { content })
+        resetCommentForm()
+        await loadComments(commentPage)
       } else {
         await createComment(postId, { content })
-        setCommentPage(1)
-      }
+        resetCommentForm()
 
-      resetCommentForm()
-      await loadPost()
+        if (commentPage === 1) {
+          await loadComments(1)
+        } else {
+          setCommentPage(1)
+        }
+      }
     } catch (error) {
       window.alert(getApiErrorMessage(error))
 
@@ -165,7 +202,7 @@ function PostDetailPage() {
 
       if (error.message === API_ERROR_CODE.COMMENT_NOT_FOUND) {
         resetCommentForm()
-        loadPost()
+        loadComments()
       }
     }
   }
@@ -182,12 +219,20 @@ function PostDetailPage() {
   const removeComment = async (commentId) => {
     try {
       await deleteComment(postId, commentId)
-      await loadPost()
+      const nextPage = comments.length === 1 && commentPage > 1
+        ? commentPage - 1
+        : commentPage
+
+      if (nextPage === commentPage) {
+        await loadComments(nextPage)
+      } else {
+        setCommentPage(nextPage)
+      }
     } catch (error) {
       window.alert(getApiErrorMessage(error))
 
       if (error.message === API_ERROR_CODE.COMMENT_NOT_FOUND) {
-        loadPost()
+        loadComments()
       }
     }
   }
@@ -251,7 +296,7 @@ function PostDetailPage() {
       />
 
       <CommentSection
-        comments={visibleComments}
+        comments={comments}
         userId={user?.id}
         onEdit={handleCommentEdit}
         onDelete={(commentId) =>
@@ -262,7 +307,7 @@ function PostDetailPage() {
         }
       />
 
-      {comments.length > COMMENTS_PER_PAGE && (
+      {commentPageMeta.total_pages > 1 && (
         <nav className="comment-pagination" aria-label="댓글 페이지">
           <button
             type="button"
