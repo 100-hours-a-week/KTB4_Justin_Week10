@@ -36,7 +36,11 @@ body:has(.edit-password-page) {
   box-shadow: 0 14px 40px rgba(35, 34, 58, .07);
 }
 
-.signup-page { margin-top: 82px; padding-top: 30px; }
+.signup-page,
+.make-post-page,
+.edit-post-page { margin-top: 82px; }
+
+.signup-page { padding-top: 30px; }
 .make-post-page,
 .edit-post-page { width: min(760px, calc(100% - 32px)); }
 
