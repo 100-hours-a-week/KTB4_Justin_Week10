@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react'
-import defaultProfileImage from '../../assets/default-profile.png'
+import defaultProfileImage from '../../assets/default-profile.svg'
+
+const LEGACY_WITHDRAWN_PROFILE_IMAGE = 'https://image.kr/withdrawn.jpg'
+
+function resolveProfileImage(src) {
+  return !src || src === LEGACY_WITHDRAWN_PROFILE_IMAGE
+    ? defaultProfileImage
+    : src
+}
 
 function ProfileImage({ src, alt = '프로필 이미지', onError, ...props }) {
-  const [imageSrc, setImageSrc] = useState(src || defaultProfileImage)
+  const [imageSrc, setImageSrc] = useState(resolveProfileImage(src))
 
   useEffect(() => {
-    setImageSrc(src || defaultProfileImage)
+    setImageSrc(resolveProfileImage(src))
   }, [src])
 
   const handleError = (event) => {
