@@ -60,6 +60,7 @@ function PostsPage() {
   const requestedPage =
     Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1
   const selectedGenre = searchParams.get('genre') ?? ''
+  const appliedKeyword = searchParams.get('keyword') ?? ''
   const totalPages = Math.max(1, pageMeta.total_pages)
   const currentPage = Math.min(requestedPage, totalPages)
   const visiblePosts = posts
@@ -75,6 +76,7 @@ function PostsPage() {
           page: requestedPage - 1,
           size: POSTS_PER_PAGE,
           genre: selectedGenre,
+          keyword: appliedKeyword,
         }
         const response =
           activeFilter === 'liked'
@@ -114,7 +116,7 @@ function PostsPage() {
     return () => {
       cancelled = true
     }
-  }, [activeFilter, requestedPage, selectedGenre])
+  }, [activeFilter, appliedKeyword, requestedPage, selectedGenre])
 
   useEffect(() => {
     const loadGenres = async () => {
@@ -288,10 +290,23 @@ function PostsPage() {
 
   return (
     <main className="posts-page">
-      <PostSortTabs
-        activeFilter={activeFilter}
-        onFilterChange={handleFilterChange}
-      />
+      <div className="posts-toolbar-row">
+        <PostSortTabs
+          activeFilter={activeFilter}
+          onFilterChange={handleFilterChange}
+        />
+
+        {appliedKeyword && (
+          <section className="search-result-summary" aria-live="polite">
+            <strong>‘{appliedKeyword}’ 검색 결과</strong>
+            <span>
+              {isListLoading
+                ? '검색 중...'
+                : `총 ${pageMeta.total_elements.toLocaleString()}개`}
+            </span>
+          </section>
+        )}
+      </div>
 
       <div className="posts-content-layout">
         <GenreSidebar
@@ -326,7 +341,7 @@ function PostsPage() {
               )}
 
               <section
-                key={`${activeFilter}-${selectedGenre}-${currentPage}`}
+                key={`${activeFilter}-${selectedGenre}-${appliedKeyword}-${currentPage}`}
                 className="post-list post-list-current"
                 aria-live="polite"
               >
