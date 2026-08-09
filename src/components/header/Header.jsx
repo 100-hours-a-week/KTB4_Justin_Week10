@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.js'
 import { logout as logoutRequest } from '../../services/authApi.js'
+import { getPostSuggestions } from '../../services/postApi.js'
 import ProfileImage from '../common/ProfileImage.jsx'
 import PostSearchBar from '../post/PostSearchBar.jsx'
 import ProfileDropdown from './ProfileDropdown.jsx'
@@ -22,6 +23,8 @@ function Header() {
   const appliedKeyword = searchParams.get('keyword') ?? ''
   const [draftKeyword, setDraftKeyword] = useState(appliedKeyword)
   const [searchError, setSearchError] = useState('')
+  const [suggestions, setSuggestions] = useState([])
+  const [suggestionStatus, setSuggestionStatus] = useState('idle')
 
   const { pathname } = location
   const isLoginPage = pathname === '/login'
@@ -46,6 +49,43 @@ function Header() {
     }
     setSearchError('')
   }, [appliedKeyword])
+
+  useEffect(() => {
+    const normalizedKeyword = draftKeyword.trim()
+
+    if (!isPostsPage || !isSearchActive || normalizedKeyword.length < 2) {
+      setSuggestions([])
+      setSuggestionStatus('idle')
+      return undefined
+    }
+
+    let cancelled = false
+    const debounceTimer = window.setTimeout(async () => {
+      setSuggestionStatus('loading')
+
+      try {
+        const response = await getPostSuggestions({
+          keyword: normalizedKeyword,
+          size: 5,
+        })
+
+        if (!cancelled) {
+          setSuggestions(Array.isArray(response.data) ? response.data : [])
+          setSuggestionStatus('success')
+        }
+      } catch {
+        if (!cancelled) {
+          setSuggestions([])
+          setSuggestionStatus('error')
+        }
+      }
+    }, 300)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(debounceTimer)
+    }
+  }, [draftKeyword, isPostsPage, isSearchActive])
 
   useEffect(() => {
     if (!isProfileOpen) return undefined
@@ -83,6 +123,9 @@ function Header() {
   const handleSearchInputChange = (keyword) => {
     setDraftKeyword(keyword)
     setSearchError('')
+    setSuggestions([])
+    setSuggestionStatus('idle')
+    setIsSearchActive(true)
   }
 
   const handleSearchSubmit = (event) => {
@@ -100,12 +143,24 @@ function Header() {
     nextSearchParams.set('page', '1')
     setDraftKeyword(normalizedKeyword)
     setSearchError('')
+    setSuggestions([])
+    setSuggestionStatus('idle')
+    setIsSearchActive(false)
     setSearchParams(nextSearchParams)
+  }
+
+  const handleSuggestionSelect = (postId) => {
+    setSuggestions([])
+    setSuggestionStatus('idle')
+    setIsSearchActive(false)
+    navigate(`/posts/${postId}`)
   }
 
   const handlePostsClick = (event) => {
     setIsSearchActive(false)
     setSearchError('')
+    setSuggestions([])
+    setSuggestionStatus('idle')
 
     if (!isPostsPage) {
       return
@@ -193,8 +248,11 @@ function Header() {
             <PostSearchBar
               value={draftKeyword}
               errorMessage={searchError}
+              suggestions={suggestions}
+              suggestionStatus={suggestionStatus}
               onChange={handleSearchInputChange}
               onSubmit={handleSearchSubmit}
+              onSuggestionSelect={handleSuggestionSelect}
               onFocus={() => setIsSearchActive(true)}
               onBlur={() => setIsSearchActive(false)}
             />
