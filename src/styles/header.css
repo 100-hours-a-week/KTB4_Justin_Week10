@@ -351,3 +351,7 @@
     transform: translateX(-50%);
   }
 }
+
+@media (max-width: 520px) {
+  .auth-header .header-back-btn { left: 0; }
+}
