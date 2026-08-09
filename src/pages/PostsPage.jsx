@@ -290,10 +290,23 @@ function PostsPage() {
 
   return (
     <main className="posts-page">
-      <PostSortTabs
-        activeFilter={activeFilter}
-        onFilterChange={handleFilterChange}
-      />
+      <div className="posts-toolbar-row">
+        <PostSortTabs
+          activeFilter={activeFilter}
+          onFilterChange={handleFilterChange}
+        />
+
+        {appliedKeyword && (
+          <section className="search-result-summary" aria-live="polite">
+            <strong>‘{appliedKeyword}’ 검색 결과</strong>
+            <span>
+              {isListLoading
+                ? '검색 중...'
+                : `총 ${pageMeta.total_elements.toLocaleString()}개`}
+            </span>
+          </section>
+        )}
+      </div>
 
       <div className="posts-content-layout">
         <GenreSidebar

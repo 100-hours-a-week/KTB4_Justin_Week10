@@ -27,6 +27,10 @@ body {
   padding-left: 150px;
 }
 
+.posts-toolbar-row {
+  position: relative;
+}
+
 .sort-tabs { display: flex; align-items: center; gap: 10px; }
 
 .sort-tab {
@@ -48,6 +52,30 @@ body {
   background: var(--primary);
   color: #fff;
   box-shadow: 0 5px 12px rgba(98,81,237,.18);
+}
+
+.search-result-summary {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #73717d;
+  font-size: 12px;
+}
+
+.search-result-summary strong {
+  color: #26252d;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.search-result-summary span::before {
+  content: "·";
+  margin-right: 9px;
+  color: #bbb8c8;
 }
 
 .posts-content-layout {
@@ -117,6 +145,7 @@ body {
 
 @media (max-width: 900px) {
   .list-toolbar { padding-left: 0; }
+  .search-result-summary { right: 2px; }
   .posts-content-layout { grid-template-columns: 1fr; gap: 10px; }
   .genre-sidebar { position: static; padding: 7px; overflow: hidden; border: 1px solid #ebeaf2; border-radius: 12px; }
   .genre-sidebar-title, .genre-tab-indicator { display: none; }
