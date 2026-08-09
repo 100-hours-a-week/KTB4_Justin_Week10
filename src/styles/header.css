@@ -127,20 +127,27 @@
   position: absolute;
   z-index: 2;
   top: calc(100% + 24px);
-  left: max(-16px, calc(50% - 432px));
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border: 1px solid #e5e5ec;
-  border-radius: 9px;
+  left: max(-16px, calc(50% - 380px));
+  width: auto;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid #e1e1e9;
+  border-radius: 10px;
   background: #fff;
-  color: #373741;
-  font-size: 20px;
+  color: #555660;
+  font-size: 13px;
+  font-weight: 750;
   line-height: 1;
+  box-shadow: 0 3px 10px rgba(35, 34, 58, .04);
   cursor: pointer;
 }
+.posts-header .header-back-btn span:first-child { font-size: 18px; line-height: 1; }
 .posts-header .header-back-btn:hover { border-color: #bdb6fa; color: #6251ed; }
-.auth-header .header-back-btn { left: max(-16px, calc(50% - 272px)); }
+.auth-header .header-back-btn { left: max(-16px, calc(50% - 220px)); }
 .posts-header .main-nav { height: 100%; display: flex; align-items: stretch; gap: 32px; margin-left: 64px; }
 .posts-header .main-nav a,
 .posts-header .main-nav button {

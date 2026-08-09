@@ -70,7 +70,13 @@ function SignupPage() {
   const [password, setPassword] = useState('')
   const [passwordCheck, setPasswordCheck] = useState('')
   const [nickname, setNickname] = useState('')
-  const [helpers, setHelpers] = useState(DEFAULT_HELPERS)
+  const [helpers, setHelpers] = useState({
+    profile: '',
+    email: '',
+    password: '',
+    passwordCheck: '',
+    nickname: '',
+  })
 
   const errors = {
     profile: imageFile ? null : DEFAULT_HELPERS.profile,
@@ -84,25 +90,25 @@ function SignupPage() {
   const showError = (name) => {
     setHelpers((current) => ({
       ...current,
-      [name]: errors[name] ?? '* helper text',
+      [name]: errors[name] ?? '',
     }))
   }
 
   const showPasswordErrors = () => {
     setHelpers((current) => ({
       ...current,
-      password: errors.password ?? '* helper text',
-      passwordCheck: errors.passwordCheck ?? '* helper text',
+      password: errors.password ?? '',
+      passwordCheck: errors.passwordCheck ?? '',
     }))
   }
 
   const showAllErrors = () => {
     setHelpers({
-      profile: errors.profile ?? '* helper text',
-      email: errors.email ?? '* helper text',
-      password: errors.password ?? '* helper text',
-      passwordCheck: errors.passwordCheck ?? '* helper text',
-      nickname: errors.nickname ?? '* helper text',
+      profile: errors.profile ?? '',
+      email: errors.email ?? '',
+      password: errors.password ?? '',
+      passwordCheck: errors.passwordCheck ?? '',
+      nickname: errors.nickname ?? '',
     })
   }
 
@@ -113,7 +119,7 @@ function SignupPage() {
       selectImage(file)
       setHelpers((current) => ({
         ...current,
-        profile: '* helper text',
+        profile: '',
       }))
     } else {
       clearImage()

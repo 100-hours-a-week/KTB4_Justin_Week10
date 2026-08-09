@@ -204,7 +204,8 @@ function Header() {
             aria-label="뒤로가기"
             onClick={() => navigate(-1)}
           >
-            ←
+            <span aria-hidden="true">←</span>
+            <span>뒤로가기</span>
           </button>
         )}
 
