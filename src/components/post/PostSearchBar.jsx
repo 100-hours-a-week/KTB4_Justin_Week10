@@ -1,18 +1,40 @@
-function PostSearchBar({ onFocus, onBlur }) {
+function PostSearchBar({
+  value,
+  errorMessage,
+  onChange,
+  onSubmit,
+  onFocus,
+  onBlur,
+}) {
   return (
-    <section className="search-section" aria-label="게시글 검색">
+    <form
+      className="search-section"
+      role="search"
+      aria-label="게시글 검색"
+      onSubmit={onSubmit}
+    >
       <label className="search-box" htmlFor="post-search">
         <span aria-hidden="true">⌕</span>
         <input
           id="post-search"
           type="search"
-          placeholder="제목, 내용, 작성자로 검색해보세요"
+          value={value}
+          placeholder="곡명, 가수, 작성자로 검색해보세요"
           autoComplete="off"
+          maxLength={50}
+          aria-invalid={Boolean(errorMessage)}
+          aria-describedby={errorMessage ? 'post-search-error' : undefined}
+          onChange={(event) => onChange(event.target.value)}
           onFocus={onFocus}
           onBlur={onBlur}
         />
       </label>
-    </section>
+      {errorMessage && (
+        <p id="post-search-error" className="search-error" role="alert">
+          {errorMessage}
+        </p>
+      )}
+    </form>
   )
 }
 

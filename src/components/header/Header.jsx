@@ -3,6 +3,7 @@ import {
   Link,
   useLocation,
   useNavigate,
+  useSearchParams,
 } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.js'
 import { logout as logoutRequest } from '../../services/authApi.js'
@@ -14,9 +15,13 @@ function Header() {
   const { authStatus, user, logout } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const headerRef = useRef(null)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isSearchActive, setIsSearchActive] = useState(false)
+  const appliedKeyword = searchParams.get('keyword') ?? ''
+  const [draftKeyword, setDraftKeyword] = useState(appliedKeyword)
+  const [searchError, setSearchError] = useState('')
 
   const { pathname } = location
   const isLoginPage = pathname === '/login'
@@ -24,6 +29,7 @@ function Header() {
   const isAuthPage = isLoginPage || isSignupPage
   const isPostsRoute = pathname === '/posts' || pathname.startsWith('/posts/')
   const isPostsPage = pathname === '/posts'
+  const hasAppliedSearch = Boolean(appliedKeyword)
   const showBackButton =
     isSignupPage ||
     pathname === '/posts/new' ||
@@ -33,6 +39,13 @@ function Header() {
     setIsProfileOpen(false)
     setIsSearchActive(false)
   }, [pathname])
+
+  useEffect(() => {
+    if (appliedKeyword) {
+      setDraftKeyword(appliedKeyword)
+    }
+    setSearchError('')
+  }, [appliedKeyword])
 
   useEffect(() => {
     if (!isProfileOpen) return undefined
@@ -65,6 +78,49 @@ function Header() {
 
     setIsSearchActive(true)
     searchInput.focus({ preventScroll: true })
+  }
+
+  const handleSearchInputChange = (keyword) => {
+    setDraftKeyword(keyword)
+    setSearchError('')
+  }
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault()
+
+    const normalizedKeyword = draftKeyword.trim()
+
+    if (normalizedKeyword.length < 2) {
+      setSearchError('검색어를 2글자 이상 입력해주세요.')
+      return
+    }
+
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set('keyword', normalizedKeyword)
+    nextSearchParams.set('page', '1')
+    setDraftKeyword(normalizedKeyword)
+    setSearchError('')
+    setSearchParams(nextSearchParams)
+  }
+
+  const handlePostsClick = (event) => {
+    setIsSearchActive(false)
+    setSearchError('')
+
+    if (!isPostsPage) {
+      return
+    }
+
+    event.preventDefault()
+
+    if (!hasAppliedSearch) {
+      return
+    }
+
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.delete('keyword')
+    nextSearchParams.set('page', '1')
+    setSearchParams(nextSearchParams)
   }
 
   const handleLogout = async () => {
@@ -109,14 +165,22 @@ function Header() {
 
         <nav className="main-nav" aria-label="주요 메뉴">
           <Link
-            className={`nav-posts${isPostsRoute && !isSearchActive ? ' active' : ''}`}
+            className={`nav-posts${
+              isPostsRoute && !isSearchActive && !hasAppliedSearch
+                ? ' active'
+                : ''
+            }`}
             to="/posts"
-            onClick={() => setIsSearchActive(false)}
+            onClick={handlePostsClick}
           >
             게시글
           </Link>
           <button
-            className={isSearchActive ? 'nav-search active' : 'nav-search'}
+            className={
+              isSearchActive || hasAppliedSearch
+                ? 'nav-search active'
+                : 'nav-search'
+            }
             type="button"
             onClick={handleSearch}
           >
@@ -127,6 +191,10 @@ function Header() {
         {isPostsPage && (
           <div className="header-search">
             <PostSearchBar
+              value={draftKeyword}
+              errorMessage={searchError}
+              onChange={handleSearchInputChange}
+              onSubmit={handleSearchSubmit}
               onFocus={() => setIsSearchActive(true)}
               onBlur={() => setIsSearchActive(false)}
             />
