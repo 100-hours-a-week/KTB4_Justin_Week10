@@ -134,6 +134,7 @@ function Header() {
     const normalizedKeyword = draftKeyword.trim()
 
     if (normalizedKeyword.length < 2) {
+      setDraftKeyword('')
       setSearchError('검색어를 2글자 이상 입력해주세요.')
       return
     }

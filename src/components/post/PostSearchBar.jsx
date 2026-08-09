@@ -18,17 +18,24 @@ function PostSearchBar({
       aria-label="게시글 검색"
       onSubmit={onSubmit}
     >
-      <label className="search-box" htmlFor="post-search">
-        <span aria-hidden="true">⌕</span>
+      <label
+        className={`search-box${errorMessage ? ' has-error' : ''}`}
+        htmlFor="post-search"
+      >
+        <span className="search-icon" aria-hidden="true">⌕</span>
         <input
           id="post-search"
           type="search"
           value={value}
-          placeholder="곡명, 가수, 작성자로 검색해보세요"
+          placeholder={
+            errorMessage || '곡명, 가수, 작성자로 검색해보세요'
+          }
           autoComplete="off"
           maxLength={50}
           aria-invalid={Boolean(errorMessage)}
-          aria-describedby={errorMessage ? 'post-search-error' : undefined}
+          aria-label={
+            errorMessage || '곡명, 가수, 작성자 검색'
+          }
           aria-autocomplete="list"
           aria-controls="post-search-suggestions"
           aria-expanded={isSuggestionOpen}
@@ -37,11 +44,6 @@ function PostSearchBar({
           onBlur={onBlur}
         />
       </label>
-      {errorMessage && (
-        <p id="post-search-error" className="search-error" role="alert">
-          {errorMessage}
-        </p>
-      )}
       {isSuggestionOpen && (
         <div
           id="post-search-suggestions"
