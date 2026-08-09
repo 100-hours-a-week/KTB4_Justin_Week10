@@ -43,9 +43,32 @@ body {
   font-size: 13px;
   font-weight: 700;
   cursor: default;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1;
 }
 
-.sort-tab span { margin-right: 4px; font-size: 16px; }
+.sort-tab-icon {
+  width: 17px;
+  height: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 17px;
+}
+
+.sort-tab-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .sort-tab[data-filter] { cursor: pointer; }
 .sort-tab.active {
   border-color: var(--primary);
@@ -306,15 +329,15 @@ body {
   inset: 0;
   display: grid;
   place-items: center;
-  background: #f0eeff;
-  color: #6251ed;
+  background: #f6f5fc;
+  color: #8c82e9;
 }
 
 .thumbnail-placeholder span {
   font-size: clamp(48px, 5vw, 76px);
   font-weight: 900;
   line-height: 1;
-  opacity: .72;
+  opacity: .38;
 }
 
 .track-overlay {

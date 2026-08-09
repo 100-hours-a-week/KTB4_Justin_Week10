@@ -22,7 +22,12 @@ function PostSearchBar({
         className={`search-box${errorMessage ? ' has-error' : ''}`}
         htmlFor="post-search"
       >
-        <span className="search-icon" aria-hidden="true">⌕</span>
+        <span className="search-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="m16 16 4 4" />
+          </svg>
+        </span>
         <input
           id="post-search"
           type="search"
